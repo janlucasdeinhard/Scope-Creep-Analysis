@@ -27,7 +27,7 @@ RC=<root cause sentence or No> | SYS=<comma-separated system names or None>
 
 Do not output anything else. No ticket number. No bullet points. No extra commentary.
 
-Downstream system list (canonical names):
+Downstream system list (canonical names and short description):
 - DXCon UAT and DXCon Prod / DXQB
 - Shareville OSC
 - PMD Descon
