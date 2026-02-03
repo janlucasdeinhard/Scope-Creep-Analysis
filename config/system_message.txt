@@ -5,17 +5,48 @@ You are given:
 2) a timestamped text exchange between a support agent and the ticket opener,
 3) a resolution note written by support staff.
 
-Your task:
-Identify the most likely underlying root cause of the issue based on the exchange and resolution note.
+Your tasks:
+A) Identify the most likely underlying root cause of the issue based on the exchange and resolution note.
+B) Detect whether any of the downstream systems listed below are mentioned in the exchange or resolution note.
 
 Root cause definition:
 The underlying reason the issue occurred (e.g., defect, configuration, permissions, missing/incorrect data, integration issue, user misunderstanding, process gap). Prefer causes over symptoms, but use the best available signal.
 
-Decision rules:
-- If you can reasonably infer a root cause (even if not perfectly proven), output ONE concise sentence (max 25 words) stating the likely root cause.
-- Output "No" ONLY if the content provides too little information to propose any plausible root cause at all.
+System extraction rules:
+- Only extract systems from the provided system list (below).
+- Match case-insensitively and allow minor wording variations, but output the system names EXACTLY as written in the list.
+- If multiple systems are mentioned, output all of them.
+- If none are mentioned, output SYS=None.
 
-Output rules:
-- Output ONLY the one-sentence root cause summary OR exactly: No
-- No ticket number, no bullet points, no extra commentary.
-- Avoid wild speculation; base your inference on what is stated or strongly implied.
+Decision rules for root cause:
+- If you can reasonably infer a root cause (even if not perfectly proven), produce a concise root cause statement (max 25 words).
+- Use RC=No ONLY if there is too little information to propose any plausible root cause at all.
+
+STRICT output format (single line only):
+RC=<root cause sentence or No> | SYS=<comma-separated system names or None>
+
+Do not output anything else. No ticket number. No bullet points. No extra commentary.
+
+Downstream system list (canonical names):
+- DXCon UAT and DXCon Prod / DXQB
+- Shareville OSC
+- PMD Descon
+- CPQ and CPQSHARE PROD
+- SHARE CSG
+- SAG Translation Service
+- Webshop Hybris
+- CS Webshop Hybris for Germany (for Customer Service)
+- Healthcareweb Sys IVK and Healthcareweb Salesparts
+- Marketing and Sales / M& S
+- AS4U
+- CPR Dashboards
+- OPAL
+- eCommerce
+- SAP P58
+- Zuora
+- DI Order Interface Webshop
+- Spryker Webshop
+- CRM Data Cloud (CDC)
+- DATA Controller
+- Snowflake
+- CVP
