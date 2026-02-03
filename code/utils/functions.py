@@ -80,3 +80,37 @@ def generate_batch(db_path:str,mcmn_tickets_path:str,batchsize:int=100) -> pd.Da
     # Generate minibatch
     batch_df = df[~df['number'].isin(known_incidents)][:batchsize]
     return batch_df
+
+
+# Main processing function
+def main(batchsize,minibatch_size,db_path, mcmn_tickets_path,SYSTEM_MESSAGE):
+    assert batchsize >= minibatch_size, 'Batch size must be greater than or equal to minibatch size. Note: Defaults if not specified in cmd is 100 and 10.'
+    # Load batch of 100 unclassified tickets
+    df = generate_batch(
+        db_path=db_path,
+        mcmn_tickets_path=mcmn_tickets_path,
+        batchsize=batchsize
+    )
+    minibatch_size = minibatch_size
+    # Iterate batch in minibatches
+    ctr = 1 
+    for i in range(0,df.shape[0],minibatch_size):
+        msg = f'Processing batch {ctr}, records {i}:{i+minibatch_size}...'
+        print(msg,end='',flush=True)
+        # Create minibatch
+        minibatch_df = df[i:i+minibatch_size].copy()
+        # Process minibatch
+        res = llm_process_minibatch(
+            cdf=minibatch_df,
+            system_message=SYSTEM_MESSAGE,
+            verbose=False
+        )
+        # Attach results to minibatch dataframe
+        minibatch_df.loc[:,'evident_root_cause'] = minibatch_df['number'].apply(lambda x: res[x])
+        # Store to database
+        with sqlite3.connect(db_path) as conn:
+            minibatch_df.to_sql("inc", conn, if_exists="append", index=False)
+        ctr += 1
+        print('\r' + msg + ' Done!')
+    print("All batches processed and stored to database.")
+    return
